@@ -1,0 +1,17 @@
+{
+  "name": "12-uploadfile_multer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "multer": "^2.4.0",
+    "nodemon": "^3.1.14"
+  }
+}
