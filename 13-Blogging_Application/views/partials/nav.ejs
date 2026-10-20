@@ -29,10 +29,23 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            Pavan Pai
+            <img
+              src="<%= locals.currentUser?.profileImageUrl || '/images/image.png' %>"
+              alt="<%= locals.currentUser?.fullname || 'Profile' %>"
+              onerror="this.onerror=null;this.src='/images/image.png'"
+              width="32"
+              height="32"
+              class="rounded-circle me-2"
+            />
+            <%= locals.currentUser?.fullname || 'Account' %>
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">LogOut</a></li>
+            <% if (locals.currentUser) { %>
+              <li><a class="dropdown-item" href="/user/logout">Log out</a></li>
+            <% } else { %>
+              <li><a class="dropdown-item" href="/user/signin">Sign in</a></li>
+              <li><a class="dropdown-item" href="/user/signup">Sign up</a></li>
+            <% } %>
           </ul>
         </li>
       </ul>

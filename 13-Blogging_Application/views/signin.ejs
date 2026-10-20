@@ -6,6 +6,9 @@
   </head>
   <body>
     <%- include('./partials/nav') %>
+    <% if (typeof error !== 'undefined') { %>
+      <p class="text-danger" role="alert"><%= error %></p>
+    <% } %>
 
     <div class="container mt-4">
       <form action="/user/signin" method="post">
