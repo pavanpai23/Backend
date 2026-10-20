@@ -1,11 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChatBot</title>
-</head>
-<body>
-    
-</body>
+  </head>
+  <body>
+    <h1>chatting</h1>
+    <input type="text" id="message" placeholder="enter msg" />
+    <button id="sendBtn">Send</button>
+    <div id="msg"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const sendBtn = document.getElementById("sendBtn");
+      const messageInput = document.getElementById("message");
+      const allmsg = document.getElementById("msg");
+
+      socket.on("message", (message) => {
+        const p = document.createElement("p");
+        p.innerText = message;
+        allmsg.appendChild(p);
+      });
+      sendBtn.addEventListener("click", (e) => {
+        const message = messageInput.value;
+        console.log(message);
+        socket.emit("userMessage", message);
+      });
+    </script>
+  </body>
 </html>
