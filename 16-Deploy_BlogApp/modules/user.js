@@ -1,5 +1,4 @@
-const { error } = require("console");
-const { createHmac, randomBytes } = require("crypto");
+const { createHmac, randomBytes, scryptSync, timingSafeEqual } = require("crypto");
 const { Schema, model } = require("mongoose");
 const { createTokenForUser } = require("../services/authentication");
 
@@ -8,11 +7,17 @@ const userSchema = new Schema(
     fullname: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 100,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
+      maxlength: 254,
+      match: /^\S+@\S+\.\S+$/,
     },
     salt: {
       type: String,
@@ -20,6 +25,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
+      maxlength: 135,
     },
     profileImageUrl: {
       type: String,
@@ -35,35 +41,40 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", function (next) {
-  const user = this;
-
-  if (!user.isModified("password")) return;
-
-  const salt = randomBytes(16).toString();
-  const HashedPassword = createHmac("sha256", salt)
-    .update(user.password)
-    .digest("hex");
-
-  this.salt = salt;
-  this.password = HashedPassword;
+  if (!this.isModified("password")) return next();
+  if (typeof this.password !== "string" || this.password.length < 12 || this.password.length > 256) {
+    return next(new Error("Password must be between 12 and 256 characters."));
+  }
+  this.salt = randomBytes(16).toString("hex");
+  this.password = `scrypt$${scryptSync(this.password, this.salt, 64).toString("hex")}`;
   next();
 });
 
 userSchema.static(
   "matchPasswordAndGenerateToken",
   async function (email, password) {
-    const user = await this.findOne({ email });
+    const user = await this.findOne({ email: String(email).trim().toLowerCase() });
     if (!user) throw new Error("user not found");
 
-    const salt = user.salt;
-    const HashedPassword = user.password;
-
-    const userProvideHash = createHmac("sha256", salt)
-      .update(password)
-      .digest("hex");
-
-    if (HashedPassword !== userProvideHash)
-      throw new Error("incorrect password");
+    if (typeof password !== "string" || password.length > 256) throw new Error("incorrect password");
+    let valid = false;
+    if (user.password.startsWith("scrypt$")) {
+      const expected = Buffer.from(user.password.slice(7), "hex");
+      if (expected.length === 64) {
+        const actual = scryptSync(password, user.salt, 64);
+        valid = timingSafeEqual(expected, actual);
+      }
+    } else {
+      const expected = Buffer.from(user.password, "hex");
+      const actual = createHmac("sha256", user.salt).update(password).digest();
+      valid = expected.length === 32 && timingSafeEqual(expected, actual);
+      if (valid) {
+        const salt = randomBytes(16).toString("hex");
+        const upgraded = `scrypt$${scryptSync(password, salt, 64).toString("hex")}`;
+        await this.updateOne({ _id: user._id }, { $set: { salt, password: upgraded } });
+      }
+    }
+    if (!valid) throw new Error("incorrect password");
 
     const token = createTokenForUser(user);
     return token;

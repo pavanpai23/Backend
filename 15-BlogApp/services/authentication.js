@@ -1,5 +1,10 @@
 const JWT = require("jsonwebtoken");
-const secret = process.env.JWT_SECRET || "development-only-change-me";
+
+function getSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) throw new Error("Set JWT_SECRET to at least 32 characters.");
+  return secret;
+}
 
 function createTokenForUser(user) {
   const payload = {
@@ -8,12 +13,12 @@ function createTokenForUser(user) {
     profileImageUrl: user.profileImageUrl,
     role: user.role,
   };
-  const token = JWT.sign(payload, secret);
+  const token = JWT.sign(payload, getSecret(), { expiresIn: "7d" });
   return token;
 }
 
 function validateToken(token) {
-  const payload = JWT.verify(token, secret);
+  const payload = JWT.verify(token, getSecret());
   return payload;
 }
 

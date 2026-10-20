@@ -14,6 +14,7 @@
           <input
             name="CoverImage"
             type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             class="form-control"
             id="CoverImage"
             aria-colspan="CoverImage"
@@ -25,6 +26,8 @@
           <input
             name="title"
             type="title"
+            required
+            maxlength="200"
             class="form-control"
             id="title"
             aria-colspan="title"
@@ -33,7 +36,7 @@
         </div>
         <div class="mb-3">
           <label for="body" class="body">Body</label>
-          <textarea name="body" class="form-control" id="body"></textarea>
+          <textarea name="body" class="form-control" id="body" required maxlength="50000"></textarea>
         </div>
         <div class="mb-3">
           <button class="btn btn-primary">submit</button>

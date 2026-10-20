@@ -13,6 +13,8 @@
           <label for="fullname" class="form-label">Full Name</label>
           <input
             type="text"
+            required
+            maxlength="100"
             name="fullname"
             class="form-control"
             id="fullname"
@@ -26,6 +28,8 @@
           <input
             name="email"
             type="email"
+            required
+            maxlength="254"
             class="form-control"
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
@@ -39,6 +43,9 @@
           <input
             name="password"
             type="password"
+            required
+            minlength="12"
+            maxlength="256"
             class="form-control"
             id="exampleInputPassword1"
           />

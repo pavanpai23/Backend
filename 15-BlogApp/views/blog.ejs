@@ -25,11 +25,13 @@
     <div class="container mt-3">
       <h1>comments (<%= comments.length %>)</h1>
       <% if (locals.user) { %>
-       <form action="/blog/Comment/<%= blog._id %>" method="post">
+       <form action="/blog/comment/<%= blog._id %>" method="post">
         <div class="mb-3">
           <input
             name="content"
             type="text"
+            required
+            maxlength="2000"
             class="form-control"
             placeholder="Enter Comments"
           />
