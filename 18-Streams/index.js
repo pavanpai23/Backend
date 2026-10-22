@@ -9,8 +9,7 @@ const PORT = process.env.PORT || 8000;
 const samplePath = path.join(__dirname, "sample.txt");
 const compressedPath = path.join(__dirname, "sample.txt.gz");
 
-pipeline(
-  fs.createReadStream(samplePath),
+pipeline(  fs.createReadStream(samplePath),
   zlib.createGzip(),
   fs.createWriteStream(compressedPath),
   (error) => {
